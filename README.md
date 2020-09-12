@@ -54,7 +54,7 @@ python3 bot.py
 ## Supported Links : 
  - Direct Link
  - Mega.nz Link
- - openload link (not avalibe anymore)
+ - openload link (not available anymore)
  - Dropbox Link
 
 ## Requirements
