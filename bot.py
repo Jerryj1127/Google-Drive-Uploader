@@ -11,6 +11,7 @@ from creds import Creds
 from pySmartDL import SmartDL
 from pydrive.auth import GoogleAuth
 from urllib.parse import unquote
+from random import choice
 
 from plugins import TEXT
 
@@ -122,7 +123,7 @@ def UPLOAD(update, context):
     url = url.split()[-1]
     sent_message = context.bot.send_message(
         chat_id=update.message.chat_id, text=TEXT.PROCESSING)
-
+    glitch = ['( ͡° ͜ʖ ͡°)', '¯\_(ツ)_/¯', '̿̿ ̿̿ ̿̿ ̿\̿\'\̵͇̿̿\з= ( ▀ ͜͞ʖ▀) =ε/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿', '¯\_(ツ)_/¯','ʕ•ᴥ•ʔ', '(ง ͠° ͟ل͜ ͡°)ง', '(;´༎ຶД༎ຶ`)']
     download_time = 'NA'
     ID = update.message.chat_id
     ID = str(ID)
@@ -186,8 +187,8 @@ def UPLOAD(update, context):
                         sent_message.edit_text(stats)
                         time.sleep(.5)
                     except:
-                        sent_message.edit_text('Editing message failed')
-                        
+                        sent_message.edit_text(choice(glitch))
+
                 if obj.isSuccessful():
                     filename = obj.get_dest().split('/')[-1]
                     download_time = obj.get_dl_time(human=True)
