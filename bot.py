@@ -123,6 +123,7 @@ def UPLOAD(update, context):
     sent_message = context.bot.send_message(
         chat_id=update.message.chat_id, text=TEXT.PROCESSING)
 
+    download_time = 'NA'
     ID = update.message.chat_id
     ID = str(ID)
     os.path.isfile(ID)
@@ -180,9 +181,13 @@ def UPLOAD(update, context):
                 obj = SmartDL(url, dest, progress_bar= False)
                 obj.start(blocking = False)
                 while not obj.isFinished():
-                    stats = "FileName: {} \nProgress: {:.2f}% \nSpeed: {} \nAlready Downloaded: {} \nEstimated time: {} \n  : {}  ".format(temp_name, (obj.get_progress()*100), obj.get_speed(human=True), obj.get_dl_size(human=True),obj.get_eta(human=True),obj.get_progress_bar())
-                    sent_message.edit_text(stats)
-                    time.sleep(.5)
+                    try:
+                        stats = "FileName: {} \nProgress: {:.2f}% \nSpeed: {} \nAlready Downloaded: {} \nEstimated time: {} \n  : {}  ".format(temp_name, (obj.get_progress()*100), obj.get_speed(human=True), obj.get_dl_size(human=True),obj.get_eta(human=True),obj.get_progress_bar())
+                        sent_message.edit_text(stats)
+                        time.sleep(.5)
+                    except:
+                        sent_message.edit_text('Editing message failed')
+                        
                 if obj.isSuccessful():
                     filename = obj.get_dest().split('/')[-1]
                     download_time = obj.get_dl_time(human=True)
