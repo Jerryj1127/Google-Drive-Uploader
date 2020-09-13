@@ -10,11 +10,12 @@ from upload import upload
 from creds import Creds
 from pySmartDL import SmartDL
 from pydrive.auth import GoogleAuth
+from urllib.parse import unquote
 
 from plugins import TEXT
 
 from plugins.tok_rec import is_token
-from time import time
+import time
 import subprocess
 from plugins.dpbox import DPBOX
 from plugins.wdl import wget_dl
@@ -171,7 +172,23 @@ def UPLOAD(update, context):
                 print("Downloading Started : {}".format(url.split("/")[-1]))
                 sent_message.edit_text(TEXT.DOWNLOAD)
                 # filename = wget.download(url)
-                filename = wget_dl(str(url))
+                #--------------------------------------------------
+#-------> Download function
+
+                temp_name = unquote(url).split("/")[-1]
+                dest = os.getcwd()
+                obj = SmartDL(url, dest, progress_bar= False)
+                obj.start(blocking = False)
+                while not obj.isFinished():
+                    stats = "FileName: {} \nProgress: {:.2f}% \nSpeed: {} \nAlready Downloaded: {} \nEstimated time: {} \nPB: {}  ".format(temp_name, (obj.get_progress()*100), obj.get_speed(human=True), obj.get_dl_size(human=True),obj.get_eta(human=True),obj.get_progress_bar())
+                    sent_message.edit_text(stats)
+                    time.sleep(2)
+                if obj.isSuccessful():
+                    filename = obj.get_dest().split('/')[-1]
+                    sent_message.edit_text("Filename: {} \nDownload took {}".format(filename, obj.get_dl_time(human=True)))
+                    time.sleep(2)
+
+                #--------------------------------------------------
                 print("Downloading Complete : {}".format(filename))
                 sent_message.edit_text(TEXT.DOWN_COMPLETE)
                 DownloadStatus = True
@@ -183,10 +200,9 @@ def UPLOAD(update, context):
                     try:
                         sent_message.edit_text(
                             "Downloader 1 Error:{} \n\n Downloader 2 :Downloading Started...".format(e))
+###-------> Download backup fn
+                        filename = wget_dl(str(url))
 
-                        obj = SmartDL(url)
-                        obj.start()
-                        filename = obj.get_dest()
                         DownloadStatus = True
                     except Exception as e:
                         print(e)
@@ -204,8 +220,9 @@ def UPLOAD(update, context):
                 # print(filename[0],filename[-1],filename[1])
             sent_message.edit_text("Downloading Error !! ")
             os.remove(filename[-1])
+#------_> UPLOAD FN
 
-            ##########Uploading part  ###################
+           ##########Uploading part  ###################
         try:
 
             if DownloadStatus:
@@ -213,7 +230,6 @@ def UPLOAD(update, context):
 
                 SIZE = (os.path.getsize(filename))/1048576
                 SIZE = round(SIZE)
-                FILENAME = filename.split("/")[-1]
                 try:
                     FILELINK = upload(filename, update,
                                       context, TEXT.drive_folder_name)
@@ -222,7 +238,7 @@ def UPLOAD(update, context):
                     sent_message.edit_text("Uploading fail :{}".format(e))
                 else:
                     sent_message.edit_text(TEXT.DOWNLOAD_URL.format(
-                        FILENAME, SIZE, FILELINK), parse_mode=ParseMode.HTML)
+                        filename, SIZE, FILELINK), parse_mode=ParseMode.HTML)
                 print(filename)
                 try:
                     os.remove(filename)
