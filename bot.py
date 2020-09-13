@@ -180,14 +180,14 @@ def UPLOAD(update, context):
                 obj = SmartDL(url, dest, progress_bar= False)
                 obj.start(blocking = False)
                 while not obj.isFinished():
-                    stats = "FileName: {} \nProgress: {:.2f}% \nSpeed: {} \nAlready Downloaded: {} \nEstimated time: {} \nPB: {}  ".format(temp_name, (obj.get_progress()*100), obj.get_speed(human=True), obj.get_dl_size(human=True),obj.get_eta(human=True),obj.get_progress_bar())
+                    stats = "FileName: {} \nProgress: {:.2f}% \nSpeed: {} \nAlready Downloaded: {} \nEstimated time: {} \n  : {}  ".format(temp_name, (obj.get_progress()*100), obj.get_speed(human=True), obj.get_dl_size(human=True),obj.get_eta(human=True),obj.get_progress_bar())
                     sent_message.edit_text(stats)
-                    time.sleep(2)
+                    time.sleep(.5)
                 if obj.isSuccessful():
                     filename = obj.get_dest().split('/')[-1]
-                    sent_message.edit_text("Filename: {} \nDownload took {}".format(filename, obj.get_dl_time(human=True)))
-                    time.sleep(2)
-
+                    download_time = obj.get_dl_time(human=True)
+                else:
+                    raise ValueError('Download failed!! \n Switching to method 2')
                 #--------------------------------------------------
                 print("Downloading Complete : {}".format(filename))
                 sent_message.edit_text(TEXT.DOWN_COMPLETE)
@@ -238,7 +238,7 @@ def UPLOAD(update, context):
                     sent_message.edit_text("Uploading fail :{}".format(e))
                 else:
                     sent_message.edit_text(TEXT.DOWNLOAD_URL.format(
-                        filename, SIZE, FILELINK), parse_mode=ParseMode.HTML)
+                        filename, SIZE, download_time, FILELINK), parse_mode=ParseMode.HTML)
                 print(filename)
                 try:
                     os.remove(filename)
